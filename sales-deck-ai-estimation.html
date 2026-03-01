@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI設計見積 - セールス・イネーブルメント資料</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --bg-sub: #f5f7fa;
+            --text: #1a1a2e;
+            --text-sub: #4a5568;
+            --text-muted: #8a94a6;
+            --border: #e2e8f0;
+            --border-light: #edf2f7;
+            --accent: #1e3a5f;
+            --accent-light: #2d5a8e;
+            --danger: #c53030;
+            --danger-bg: #fff5f5;
+            --danger-border: #fed7d7;
+            --green: #276749;
+            --green-bg: #f0fff4;
+            --green-border: #c6f6d5;
+            --warn: #975a16;
+            --warn-bg: #fffff0;
+            --blue: #2b6cb0;
+            --blue-bg: #ebf8ff;
+            --blue-border: #bee3f8;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 6vh 8vw;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .scene-label {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 0.9vw, 16px);
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(20px);
+            margin-bottom: 2vh;
+        }
+
+        .scene-heading {
+            font-size: clamp(28px, 3.2vw, 56px);
+            font-weight: 800;
+            line-height: 1.4;
+            letter-spacing: -0.02em;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .scene-body {
+            font-size: clamp(16px, 1.4vw, 24px);
+            color: var(--text-sub);
+            line-height: 1.9;
+            text-align: center;
+            max-width: 70vw;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .scene-sub {
+            font-size: clamp(14px, 1.1vw, 20px);
+            color: var(--text-muted);
+            line-height: 1.8;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Title scene */
+        .title-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 0.8vh 2.5vw;
+            border-radius: 6px;
+            font-size: clamp(13px, 1vw, 18px);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 3vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Overview grid */
+        .overview-grid {
+            display: flex;
+            gap: clamp(16px, 2vw, 40px);
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .overview-item {
+            text-align: center;
+            padding: 3vh 3vw;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-sub);
+            min-width: clamp(160px, 14vw, 260px);
+        }
+
+        .overview-num {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(32px, 3.5vw, 64px);
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5vh;
+        }
+
+        .overview-label {
+            font-size: clamp(13px, 1vw, 18px);
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Challenge sections */
+        .challenge-content {
+            width: 100%;
+            max-width: 80vw;
+            display: flex;
+            flex-direction: column;
+            gap: 4vh;
+            align-items: center;
+        }
+
+        .challenge-num {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.1vw, 20px);
+            font-weight: 700;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            padding: 0.8vh 2vw;
+            border-radius: 6px;
+            letter-spacing: 2px;
+        }
+
+        .challenge-title {
+            font-size: clamp(26px, 2.8vw, 48px);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .challenge-desc {
+            font-size: clamp(16px, 1.3vw, 22px);
+            color: var(--text-sub);
+            text-align: center;
+            line-height: 1.9;
+            max-width: 65vw;
+        }
+
+        .challenge-stat {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 1vh;
+        }
+
+        .challenge-stat-val {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(36px, 4vw, 72px);
+            font-weight: 800;
+            color: var(--danger);
+        }
+
+        .challenge-stat-unit {
+            font-size: clamp(16px, 1.2vw, 22px);
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Bottleneck grid */
+        .bottleneck-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(12px, 1.5vw, 24px);
+            width: 100%;
+            max-width: 75vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .bottleneck-card {
+            border: 2px solid var(--danger-border);
+            border-radius: 8px;
+            padding: 3vh 2.5vw;
+            background: var(--bg);
+            position: relative;
+        }
+
+        .bottleneck-card-num {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            background: var(--danger);
+            color: #fff;
+            width: clamp(28px, 2.2vw, 36px);
+            height: clamp(28px, 2.2vw, 36px);
+            border-radius: 6px 0 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: clamp(14px, 1vw, 18px);
+        }
+
+        .bottleneck-card h3 {
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+            margin-bottom: 1.5vh;
+            padding-left: clamp(28px, 2.5vw, 40px);
+        }
+
+        .bottleneck-card p {
+            font-size: clamp(14px, 1vw, 18px);
+            color: var(--text-sub);
+            line-height: 1.8;
+        }
+
+        /* Solution flow */
+        .flow-container {
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .flow-step {
+            flex: 1;
+            text-align: center;
+            padding: 0 1.5vw;
+        }
+
+        .flow-num {
+            width: clamp(52px, 5vw, 80px);
+            height: clamp(52px, 5vw, 80px);
+            margin: 0 auto 2vh;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 2vw, 32px);
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .flow-step h3 {
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+            margin-bottom: 1vh;
+        }
+
+        .flow-step p {
+            font-size: clamp(13px, 1vw, 18px);
+            color: var(--text-sub);
+            line-height: 1.7;
+        }
+
+        .flow-arrow {
+            font-size: clamp(20px, 2vw, 32px);
+            color: var(--border);
+            flex-shrink: 0;
+            width: clamp(30px, 3vw, 50px);
+            text-align: center;
+            padding-top: clamp(20px, 2vw, 30px);
+        }
+
+        /* Weapon sections */
+        .weapon-content {
+            width: 100%;
+            max-width: 80vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3vh;
+        }
+
+        .weapon-num {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.1vw, 20px);
+            font-weight: 700;
+            color: var(--accent);
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-border);
+            padding: 0.8vh 2vw;
+            border-radius: 6px;
+            letter-spacing: 2px;
+        }
+
+        .weapon-title {
+            font-size: clamp(24px, 2.6vw, 44px);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .weapon-desc {
+            font-size: clamp(16px, 1.3vw, 22px);
+            color: var(--text-sub);
+            text-align: center;
+            line-height: 1.9;
+            max-width: 65vw;
+        }
+
+        .weapon-visual {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 3vw;
+            align-items: center;
+            width: 100%;
+            max-width: 70vw;
+            margin-top: 2vh;
+        }
+
+        .weapon-box {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3vh 2.5vw;
+            text-align: center;
+            background: var(--bg-sub);
+        }
+
+        .weapon-box-title {
+            font-size: clamp(15px, 1.2vw, 20px);
+            font-weight: 700;
+            margin-bottom: 1.5vh;
+            color: var(--accent);
+        }
+
+        .weapon-box-desc {
+            font-size: clamp(13px, 1vw, 17px);
+            color: var(--text-sub);
+            line-height: 1.8;
+        }
+
+        .weapon-arrow {
+            font-size: clamp(24px, 2.5vw, 40px);
+            color: var(--border);
+        }
+
+        /* Pricing comparison */
+        .pricing-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(20px, 3vw, 50px);
+            width: 100%;
+            max-width: 70vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .pricing-card {
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .pricing-card-header {
+            padding: 2vh 2vw;
+            font-size: clamp(18px, 1.5vw, 26px);
+            font-weight: 700;
+        }
+
+        .pricing-card-body {
+            padding: 4vh 2vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2vh;
+        }
+
+        .pricing-card.competitor .pricing-card-header {
+            background: #4a5568;
+            color: #fff;
+            border: 2px solid var(--danger);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .pricing-card.competitor .pricing-card-body {
+            border: 2px solid var(--danger);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background: #fafafa;
+        }
+
+        .pricing-card.ours .pricing-card-header {
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--accent);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .pricing-card.ours .pricing-card-body {
+            border: 2px solid var(--accent);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background: var(--blue-bg);
+        }
+
+        .pricing-amount {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(36px, 4vw, 72px);
+            font-weight: 900;
+        }
+
+        .pricing-card.competitor .pricing-amount {
+            color: var(--danger);
+        }
+
+        .pricing-card.ours .pricing-amount {
+            color: var(--accent);
+        }
+
+        .pricing-detail {
+            font-size: clamp(14px, 1.1vw, 18px);
+            color: var(--text-sub);
+            line-height: 1.8;
+        }
+
+        .pricing-note {
+            width: 100%;
+            max-width: 70vw;
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-border);
+            border-radius: 8px;
+            padding: 2vh 3vw;
+            text-align: center;
+            font-size: clamp(14px, 1.1vw, 18px);
+            color: var(--text-sub);
+            line-height: 1.8;
+            margin-top: 2vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .pricing-note strong {
+            color: var(--accent);
+        }
+
+        /* Battlecard */
+        .battlecard-container {
+            width: 100%;
+            max-width: 80vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .battlecard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(13px, 1vw, 18px);
+        }
+
+        .battlecard-table th {
+            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 24px);
+            text-align: center;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .battlecard-table th:first-child {
+            background: var(--bg-sub);
+            color: var(--text);
+        }
+
+        .battlecard-table th:nth-child(2) {
+            background: #4a5568;
+            color: #fff;
+        }
+
+        .battlecard-table th:nth-child(3) {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .battlecard-table th:nth-child(4) {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .battlecard-table td {
+            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 24px);
+            border: 1px solid var(--border-light);
+            text-align: center;
+            color: var(--text-sub);
+        }
+
+        .battlecard-table td:first-child {
+            font-weight: 700;
+            color: var(--text);
+            background: var(--bg-sub);
+        }
+
+        .battlecard-table td:nth-child(3) {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .battlecard-table td:nth-child(4) {
+            color: var(--green);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        /* Target segment */
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(16px, 2vw, 32px);
+            width: 100%;
+            max-width: 80vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .target-card {
+            border: 2px solid var(--blue-border);
+            border-radius: 12px;
+            padding: 4vh 2.5vw;
+            text-align: center;
+            background: var(--bg);
+            transition: transform 0.2s ease;
+        }
+
+        .target-card-icon {
+            font-size: clamp(36px, 3.5vw, 56px);
+            margin-bottom: 2vh;
+        }
+
+        .target-card h3 {
+            font-size: clamp(18px, 1.5vw, 26px);
+            font-weight: 800;
+            margin-bottom: 2vh;
+            color: var(--accent);
+        }
+
+        .target-card p {
+            font-size: clamp(13px, 1vw, 17px);
+            color: var(--text-sub);
+            line-height: 1.8;
+        }
+
+        /* SWOT */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(16px, 2vw, 32px);
+            width: 100%;
+            max-width: 75vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .swot-card {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .swot-card-header {
+            padding: 1.5vh 2vw;
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+        }
+
+        .swot-card-body {
+            padding: 2.5vh 2vw;
+        }
+
+        .swot-card-body ul {
+            list-style: none;
+            font-size: clamp(13px, 1vw, 17px);
+            line-height: 2.2;
+        }
+
+        .swot-card-body ul li::before {
+            content: "・";
+            font-weight: 700;
+        }
+
+        .swot-card.strength .swot-card-header {
+            background: var(--accent);
+            color: #fff;
+        }
+        .swot-card.strength .swot-card-body {
+            border: 1px solid var(--blue-border);
+            border-top: none;
+            background: var(--blue-bg);
+            color: var(--text-sub);
+        }
+
+        .swot-card.opportunity .swot-card-header {
+            background: var(--green);
+            color: #fff;
+        }
+        .swot-card.opportunity .swot-card-body {
+            border: 1px solid var(--green-border);
+            border-top: none;
+            background: var(--green-bg);
+            color: var(--text-sub);
+        }
+
+        .swot-card.weakness .swot-card-header {
+            background: var(--warn);
+            color: #fff;
+        }
+        .swot-card.weakness .swot-card-body {
+            border: 1px solid #fefcbf;
+            border-top: none;
+            background: var(--warn-bg);
+            color: var(--text-sub);
+        }
+
+        .swot-card.threat .swot-card-header {
+            background: var(--danger);
+            color: #fff;
+        }
+        .swot-card.threat .swot-card-body {
+            border: 1px solid var(--danger-border);
+            border-top: none;
+            background: var(--danger-bg);
+            color: var(--text-sub);
+        }
+
+        /* Talk scripts */
+        .script-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(12px, 1.5vw, 24px);
+            width: 100%;
+            max-width: 80vw;
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .script-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3vh 2.5vw;
+            background: var(--bg);
+            position: relative;
+        }
+
+        .script-card::before {
+            content: "\201C";
+            position: absolute;
+            top: 1vh;
+            left: 1.5vw;
+            font-size: clamp(32px, 3vw, 48px);
+            color: var(--accent);
+            font-family: serif;
+            line-height: 1;
+            opacity: 0.3;
+        }
+
+        .script-card h4 {
+            font-size: clamp(14px, 1.1vw, 18px);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5vh;
+        }
+
+        .script-card p {
+            font-size: clamp(13px, 1vw, 17px);
+            color: var(--text-sub);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        /* Action plan */
+        .action-list {
+            width: 100%;
+            max-width: 70vw;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 1.5vh, 20px);
+            margin-top: 4vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(16px, 2vw, 32px);
+            padding: 2.5vh 3vw;
+            background: var(--bg-sub);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .action-num {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(32px, 3vw, 52px);
+            font-weight: 900;
+            color: var(--accent);
+            flex-shrink: 0;
+            width: clamp(50px, 4vw, 70px);
+        }
+
+        .action-text h4 {
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+            margin-bottom: 0.5vh;
+        }
+
+        .action-text p {
+            font-size: clamp(14px, 1.1vw, 18px);
+            color: var(--text-sub);
+            line-height: 1.7;
+        }
+
+        .action-footer {
+            width: 100%;
+            max-width: 70vw;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 8px;
+            padding: 2vh 3vw;
+            text-align: center;
+            font-size: clamp(14px, 1.1vw, 18px);
+            font-weight: 600;
+            margin-top: 2vh;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Result sections */
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3vh;
+        }
+
+        .result-big-num {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(72px, 10vw, 160px);
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .result-title {
+            font-size: clamp(24px, 2.4vw, 42px);
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .result-desc {
+            font-size: clamp(16px, 1.3vw, 22px);
+            color: var(--text-sub);
+            text-align: center;
+            line-height: 1.9;
+            max-width: 60vw;
+        }
+
+        /* CTA */
+        .cta-button {
+            padding: 2.5vh 5vw;
+            background: var(--accent);
+            border-radius: 6px;
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-family: 'Noto Sans JP', sans-serif;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .cta-contact {
+            font-size: clamp(14px, 1vw, 18px);
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Animations */
+        @keyframes sceneIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes sceneOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Navigation */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        .scene-indicators {
+            position: fixed;
+            right: 2vw;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8vh;
+            z-index: 100;
+        }
+
+        .scene-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
+        .scene-dot.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.8vw;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        body:hover .controls {
+            opacity: 1;
+        }
+
+        .ctrl-btn {
+            width: clamp(36px, 2.6vw, 48px);
+            height: clamp(36px, 2.6vw, 48px);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-sub);
+            font-size: clamp(13px, 1vw, 18px);
+            transition: all 0.2s ease;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--bg-sub);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-num {
+            position: fixed;
+            bottom: 2vh;
+            right: 4vw;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(11px, 0.8vw, 14px);
+            color: var(--text-muted);
+            z-index: 100;
+        }
+
+        .company-logo {
+            position: fixed;
+            top: 2vh;
+            left: 3vw;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.1vw, 18px);
+            font-weight: 800;
+            color: var(--accent);
+            z-index: 100;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="company-logo">LabOne</div>
+
+    <!-- Scene 1: Title -->
+    <section id="scene1" class="scene">
+        <div class="title-badge" data-anim="fadeInUp" data-delay="0">Sales Enablement</div>
+        <h1 class="scene-heading" data-anim="fadeInUp" data-delay="100">AI設計見積で<br>見積業務を革新する</h1>
+        <p class="scene-body" data-anim="fadeInUp" data-delay="200">競合「sellbot」をリプレイスし、新規DX需要を総取りするための実践的プレイブック。<br>「低コスト」「高透明性」「業務連携」の3つの武器で市場を切り拓く。</p>
+        <div class="overview-grid" data-anim="fadeInUp" data-delay="300">
+            <div class="overview-item">
+                <div class="overview-num">0円</div>
+                <div class="overview-label">初期導入費</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-num">8.8万</div>
+                <div class="overview-label">月額（税込）</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-num">1週間</div>
+                <div class="overview-label">無料トライアル</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 2: Mission -->
+    <section id="scene2" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Mission</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">不満が蓄積する<br>既存市場のゲームチェンジ</h2>
+        <p class="scene-body" data-anim="fadeInUp" data-delay="200">現在のAI見積市場は先行する「sellbot」が独占していますが、<br>現場では深刻な不満が噴出しています。</p>
+        <div class="overview-grid" data-anim="fadeInUp" data-delay="300">
+            <div class="overview-item">
+                <div class="overview-num" style="font-size: clamp(24px, 2.5vw, 42px);">&#8595;</div>
+                <div class="overview-label" style="font-weight:700; color: var(--accent);">低コスト</div>
+                <div class="overview-label">初期0円 / 月8.8万円</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-num" style="font-size: clamp(24px, 2.5vw, 42px);">&#128065;</div>
+                <div class="overview-label" style="font-weight:700; color: var(--accent);">高透明性</div>
+                <div class="overview-label">見積根拠を完全可視化</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-num" style="font-size: clamp(24px, 2.5vw, 42px);">&#128279;</div>
+                <div class="overview-label" style="font-weight:700; color: var(--accent);">業務連携</div>
+                <div class="overview-label">Excel / freee対応</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 3: Challenge 01 -->
+    <section id="scene3" class="scene">
+        <div class="challenge-content">
+            <div class="challenge-num" data-anim="fadeInUp" data-delay="0">PAIN POINT 01</div>
+            <h2 class="challenge-title" data-anim="fadeInUp" data-delay="100">高額な初期投資が<br>中小企業の導入を阻む</h2>
+            <p class="challenge-desc" data-anim="fadeInUp" data-delay="200">競合sellbotは買い切り型で初期導入に400万円が必要。AI見積に興味はあるが、「ROIが見えない段階で400万円は出せない」と導入を断念する企業が多数。</p>
+            <div class="challenge-stat" data-anim="fadeInUp" data-delay="300">
+                <div class="challenge-stat-val">400万円</div>
+                <div class="challenge-stat-unit">の初期投資が導入障壁に</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 4: Challenge 02 -->
+    <section id="scene4" class="scene">
+        <div class="challenge-content">
+            <div class="challenge-num" data-anim="fadeInUp" data-delay="0">PAIN POINT 02</div>
+            <h2 class="challenge-title" data-anim="fadeInUp" data-delay="100">AIの見積根拠が<br>ブラックボックス</h2>
+            <p class="challenge-desc" data-anim="fadeInUp" data-delay="200">なぜその価格になったか、AIの根拠がブラックボックス。結局、人間が再確認する必要があり、見積精度への不信感が現場に蓄積している。</p>
+            <div class="challenge-stat" data-anim="fadeInUp" data-delay="300">
+                <div class="challenge-stat-val">不透明</div>
+                <div class="challenge-stat-unit">AIの数字を鵜呑みにできない</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 5: 4 Bottlenecks -->
+    <section id="scene5" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Competitor Analysis</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">顧客の成長を阻害する<br>4つのボトルネック</h2>
+        <div class="bottleneck-grid" data-anim="fadeInUp" data-delay="200">
+            <div class="bottleneck-card">
+                <div class="bottleneck-card-num">1</div>
+                <h3>高額な初期投資</h3>
+                <p>買い切り型で400万円。中小企業には現実的でない導入障壁。</p>
+            </div>
+            <div class="bottleneck-card">
+                <div class="bottleneck-card-num">2</div>
+                <h3>不明瞭な見積精度</h3>
+                <p>なぜその価格になったか根拠がブラックボックス。結局人間の再確認が必要。</p>
+            </div>
+            <div class="bottleneck-card">
+                <div class="bottleneck-card-num">3</div>
+                <h3>硬直したコスト構造</h3>
+                <p>毎月固定10万円の保守料＋高額な専用カスタマイズオプション料金。</p>
+            </div>
+            <div class="bottleneck-card">
+                <div class="bottleneck-card-num">4</div>
+                <h3>閉鎖的なシステム</h3>
+                <p>システム内で完結し、既存の会計・表計算ソフトとの連携が弱い。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 6: Paradigm Shift -->
+    <section id="scene6" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Our Solution</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">「AI設計見積」が<br>もたらすパラダイムシフト</h2>
+        <p class="scene-body" data-anim="fadeInUp" data-delay="200">徹底的な「顧客視点」と「運用の柔軟性」から<br>逆算して開発された、全く新しいアプローチ。</p>
+        <div class="flow-container" data-anim="fadeInUp" data-delay="300">
+            <div class="flow-step">
+                <div class="flow-num">1</div>
+                <h3>PDF/図面データ入力</h3>
+                <p>設計図面や仕様書を<br>そのままアップロード</p>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+                <div class="flow-num">2</div>
+                <h3>AI自動算出</h3>
+                <p>AIが設計データを解析し<br>見積を自動算出<br>根拠も同時に可視化</p>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+                <div class="flow-num">3</div>
+                <h3>Excel / freee出力</h3>
+                <p>Excel形式またはfreee<br>請求書形式で直接出力<br>既存業務フローに統合</p>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step">
+                <div class="flow-num">4</div>
+                <h3>確認・提出</h3>
+                <p>担当者が根拠を確認し<br>自信を持って提出</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 7: Pricing Comparison -->
+    <section id="scene7" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Pricing</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">「0円 vs 400万円」が<br>切り拓く圧倒的な優位性</h2>
+        <div class="pricing-compare" data-anim="fadeInUp" data-delay="200">
+            <div class="pricing-card competitor">
+                <div class="pricing-card-header">sellbot（競合）</div>
+                <div class="pricing-card-body">
+                    <div class="pricing-amount"><span id="counter1">400</span>万円</div>
+                    <div class="pricing-detail">初期導入費（買い切り型）<br>＋ 月額10万円（保守料）</div>
+                </div>
+            </div>
+            <div class="pricing-card ours">
+                <div class="pricing-card-header">AI設計見積（自社）</div>
+                <div class="pricing-card-body">
+                    <div class="pricing-amount"><span id="counter2">0</span>円</div>
+                    <div class="pricing-detail">初期導入費（リスクゼロ）<br>月額8.8万円（サブスク）</div>
+                </div>
+            </div>
+        </div>
+        <div class="pricing-note" data-anim="fadeInUp" data-delay="300">
+            <strong>サブスクリプションモデルによる柔軟な運用</strong><br>
+            月額88,000円（3アカウントまで利用可能） / 最初の1週間はすべての機能を<strong>無料トライアル</strong>で試用可能
+        </div>
+    </section>
+
+    <!-- Scene 8: Weapon 1 -->
+    <section id="scene8" class="scene">
+        <div class="weapon-content">
+            <div class="weapon-num" data-anim="fadeInUp" data-delay="0">WEAPON 01</div>
+            <h2 class="weapon-title" data-anim="fadeInUp" data-delay="100">見積根拠の完全可視化<br>脱ブラックボックス</h2>
+            <p class="weapon-desc" data-anim="fadeInUp" data-delay="200">AIが出した数字をそのまま信じる危険性を排除。プロセスを提示し、<br>営業担当者が自信を持って提出できる見積を実現します。</p>
+            <div class="weapon-visual" data-anim="fadeInUp" data-delay="300">
+                <div class="weapon-box">
+                    <div class="weapon-box-title">従来（ブラックボックス）</div>
+                    <div class="weapon-box-desc">入力 &#8594; ??? &#8594; 金額<br><br>根拠不明のまま提出</div>
+                </div>
+                <div class="weapon-arrow">&#8594;</div>
+                <div class="weapon-box" style="border-color: var(--accent); background: var(--blue-bg);">
+                    <div class="weapon-box-title">AI設計見積</div>
+                    <div class="weapon-box-desc">入力 &#8594; パラメータ解析<br>&#8594; 係数適用 &#8594; 調整<br>&#8594; 最終算出 &#10003;</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 9: Weapon 2 -->
+    <section id="scene9" class="scene">
+        <div class="weapon-content">
+            <div class="weapon-num" data-anim="fadeInUp" data-delay="0">WEAPON 02</div>
+            <h2 class="weapon-title" data-anim="fadeInUp" data-delay="100">事務作業の二度手間を消し去る<br>シームレスな外部連携</h2>
+            <p class="weapon-desc" data-anim="fadeInUp" data-delay="200">システム内で完結させず、既存の業務フローにそのまま統合。<br>事務処理時間を劇的に短縮します。</p>
+            <div class="weapon-visual" data-anim="fadeInUp" data-delay="300">
+                <div class="weapon-box">
+                    <div class="weapon-box-title">PDF/図面データ入力</div>
+                    <div class="weapon-box-desc">設計図面・仕様書を<br>アップロード</div>
+                </div>
+                <div class="weapon-arrow">&#8594;</div>
+                <div class="weapon-box" style="border-color: var(--accent); background: var(--blue-bg);">
+                    <div class="weapon-box-title">AI設計見積が自動算出</div>
+                    <div class="weapon-box-desc">「Excel形式」または<br>「freee請求書形式」で<br>直接出力</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 10: Weapon 3 -->
+    <section id="scene10" class="scene">
+        <div class="weapon-content">
+            <div class="weapon-num" data-anim="fadeInUp" data-delay="0">WEAPON 03</div>
+            <h2 class="weapon-title" data-anim="fadeInUp" data-delay="100">自社の運用に100%フィットする<br>カスタマイズの柔軟性</h2>
+            <p class="weapon-desc" data-anim="fadeInUp" data-delay="200">高額なパッケージオプションを押し付ける競合とは異なり、<br>顧客のフェーズに合わせたサポートを提供します。</p>
+            <div class="weapon-visual" data-anim="fadeInUp" data-delay="300">
+                <div class="weapon-box">
+                    <div class="weapon-box-title">スポット相談</div>
+                    <div class="weapon-box-desc">必要な時に必要なだけの<br>アドバイス</div>
+                </div>
+                <div class="weapon-arrow" style="font-size: clamp(18px, 1.8vw, 28px); color: var(--accent);">or</div>
+                <div class="weapon-box" style="border-color: var(--accent); background: var(--blue-bg);">
+                    <div class="weapon-box-title">伴走支援プラン</div>
+                    <div class="weapon-box-desc">中長期的なパートナーとして<br>「使い倒せる」までの<br>体制を構築</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 11: Battlecard -->
+    <section id="scene11" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">The Battlecard</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">競合比較表</h2>
+        <div class="battlecard-container" data-anim="fadeInUp" data-delay="200">
+            <table class="battlecard-table">
+                <thead>
+                    <tr>
+                        <th>比較項目</th>
+                        <th>sellbot（競合）</th>
+                        <th>AI設計見積（自社）</th>
+                        <th>顧客のメリット</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>初期費用</td>
+                        <td>400万円</td>
+                        <td>0円</td>
+                        <td>投資回収リスクを最小化</td>
+                    </tr>
+                    <tr>
+                        <td>月額費用</td>
+                        <td>10万円（保守料）</td>
+                        <td>8.8万円（サブスク）</td>
+                        <td>維持費を約12%削減</td>
+                    </tr>
+                    <tr>
+                        <td>導入前検証</td>
+                        <td>原則なし</td>
+                        <td>1週間無料お試し</td>
+                        <td>精度に納得してから導入可能</td>
+                    </tr>
+                    <tr>
+                        <td>見積根拠</td>
+                        <td>不透明（AI任せ）</td>
+                        <td>ロジック可視化</td>
+                        <td>顧客への説明責任が果たせる</td>
+                    </tr>
+                    <tr>
+                        <td>外部連携</td>
+                        <td>弱い</td>
+                        <td>Excel / freee対応</td>
+                        <td>事務処理時間が劇的に短縮</td>
+                    </tr>
+                    <tr>
+                        <td>カスタマイズ</td>
+                        <td>高額オプション</td>
+                        <td>スポット・伴走選択可</td>
+                        <td>自社の運用に100%フィット</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Scene 12: Target Segments -->
+    <section id="scene12" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Target Segments</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">狙うべき3つの<br>コア・ターゲット層</h2>
+        <div class="target-grid" data-anim="fadeInUp" data-delay="200">
+            <div class="target-card">
+                <div class="target-card-icon">&#128679;</div>
+                <h3>予算の壁</h3>
+                <p>sellbotを検討したが「400万円の壁」で断念した企業。初期0円＋1週間無料トライアルで再アプローチ。</p>
+            </div>
+            <div class="target-card">
+                <div class="target-card-icon">&#128260;</div>
+                <h3>リプレイス</h3>
+                <p>現在sellbotを使用中で、精度（ブラックボックス）と毎月の保守コストに不満を持つ企業。</p>
+            </div>
+            <div class="target-card">
+                <div class="target-card-icon">&#9729;</div>
+                <h3>バックオフィスDX</h3>
+                <p>freee等のクラウド会計を導入済みで、事務フロー全体の効率化を求める企業。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 13: SWOT - Strengths & Opportunities -->
+    <section id="scene13" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">SWOT Analysis</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">戦略基盤の全体像</h2>
+        <div class="swot-grid" data-anim="fadeInUp" data-delay="200">
+            <div class="swot-card strength">
+                <div class="swot-card-header">Strengths（強み）</div>
+                <div class="swot-card-body">
+                    <ul>
+                        <li>圧倒的な導入障壁の低さ（初期0円、お試しあり）</li>
+                        <li>freee連携によるバックオフィス業務との高い親和性</li>
+                        <li>「使い倒せる」カスタマイズ伴走型支援体制</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="swot-card opportunity">
+                <div class="swot-card-header">Opportunities（機会）</div>
+                <div class="swot-card-body">
+                    <ul>
+                        <li>製造・建設業界におけるDX予算の確保トレンド</li>
+                        <li>高額買い切り型から手軽なSaaSへのシフト</li>
+                        <li>インボイス制度対応に伴うクラウド会計の急速な普及</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="swot-card weakness">
+                <div class="swot-card-header">Weaknesses（弱み）</div>
+                <div class="swot-card-body">
+                    <ul>
+                        <li>3アカウント制限：大規模組織には上位プランの追加提案を準備</li>
+                        <li>新規サービスゆえの導入実績不足：無料トライアルで初期実績を蓄積</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="swot-card threat">
+                <div class="swot-card-header">Threats（脅威）</div>
+                <div class="swot-card-body">
+                    <ul>
+                        <li>競合sellbotによる大幅な値下げやSaaS版のリリースへの警戒</li>
+                        <li>無料の簡易AI見積ツールの台頭（精度と連携機能で差別化）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 14: Talk Scripts -->
+    <section id="scene14" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Sales Scripts</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">顧客の心を動かす<br>4つの提案シナリオ</h2>
+        <div class="script-grid" data-anim="fadeInUp" data-delay="200">
+            <div class="script-card">
+                <h4>フック（Hook）</h4>
+                <p>「まだ見積AIに400万円も投資しますか？その半分以下の月額費用で、しかも明日から使える方法があります。」</p>
+            </div>
+            <div class="script-card">
+                <h4>信頼構築（Trust）</h4>
+                <p>「1週間、御社の実際の図面を読み込ませてください。精度にご納得いただけなければ、料金は一切いただきません。」</p>
+            </div>
+            <div class="script-card">
+                <h4>差別化（Differentiation）</h4>
+                <p>「AIの数字を鵜呑みにするのは危険です。弊社のツールは根拠を示すため、営業担当者が自信を持って見積を提出できます。」</p>
+            </div>
+            <div class="script-card">
+                <h4>効率化（Efficiency）</h4>
+                <p>「見積を作って終わりではありません。そのままfreeeに飛ばして請求書発行まで完了させましょう。」</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scene 15: Action Plan -->
+    <section id="scene15" class="scene">
+        <div class="scene-label" data-anim="fadeInUp" data-delay="0">Action Plan</div>
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="100">本日から仕掛ける<br>次の一手</h2>
+        <p class="scene-sub" data-anim="fadeInUp" data-delay="150">我々には「0円・1週間無料トライアル」という最強のドアオープナーがあります。</p>
+        <div class="action-list" data-anim="fadeInUp" data-delay="200">
+            <div class="action-item">
+                <div class="action-num">1</div>
+                <div class="action-text">
+                    <h4>リストアップ</h4>
+                    <p>過去に「価格」で失注した顧客リストの抽出</p>
+                </div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">2</div>
+                <div class="action-text">
+                    <h4>アプローチ</h4>
+                    <p>「1週間無料お試し」をフックにした再コンタクトの実行</p>
+                </div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">3</div>
+                <div class="action-text">
+                    <h4>ヒアリング</h4>
+                    <p>現在sellbotを利用中の企業への「精度・保守料」に関するヒアリング</p>
+                </div>
+            </div>
+        </div>
+        <div class="action-footer" data-anim="fadeInUp" data-delay="300">
+            トライアル導入からの成功事例をいち早く構築し、市場の覇権を奪いましょう。
+        </div>
+    </section>
+
+    <!-- Scene 16: CTA -->
+    <section id="scene16" class="scene">
+        <h2 class="scene-heading" data-anim="fadeInUp" data-delay="0">見積業務の<br>DXを始めませんか？</h2>
+        <p class="scene-body" data-anim="fadeInUp" data-delay="100">初期費用0円。1週間の無料トライアル。<br>御社の図面で、まずは精度をお確かめください。</p>
+        <button class="cta-button" data-anim="fadeInUp" data-delay="200">お問い合わせはこちら</button>
+        <p class="cta-contact" data-anim="fadeInUp" data-delay="300">contact@because-and.co.jp</p>
+    </section>
+
+    <!-- Navigation -->
+    <div id="progressBar" class="progress-bar"></div>
+    <div id="sceneIndicators" class="scene-indicators"></div>
+    <div class="controls">
+        <button class="ctrl-btn" onclick="prevScene()">&#9664;</button>
+        <button class="ctrl-btn" id="playPauseBtn" onclick="toggleAutoPlay()">&#9646;&#9646;</button>
+        <button class="ctrl-btn" onclick="nextScene()">&#9654;</button>
+    </div>
+    <div id="pageNum" class="page-num"></div>
+
+    <script>
+        const totalScenes = 16;
+        let currentScene = 0;
+        let autoPlayTimer = null;
+        let isAutoPlaying = true;
+        const sceneDurations = [6000, 7000, 6000, 6000, 8000, 8000, 8000, 7000, 7000, 7000, 9000, 7000, 9000, 8000, 8000, 6000];
+
+        const indicatorContainer = document.getElementById('sceneIndicators');
+        for (let i = 0; i < totalScenes; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'scene-dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => goToScene(i);
+            indicatorContainer.appendChild(dot);
+        }
+
+        function updatePageNum() {
+            document.getElementById('pageNum').textContent = (currentScene + 1) + ' / ' + totalScenes;
+        }
+
+        function animateElements(sceneEl) {
+            const elements = sceneEl.querySelectorAll('[data-anim]');
+            elements.forEach(el => {
+                const delay = parseInt(el.dataset.delay) || 0;
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translate(0, 0) scale(1)';
+                }, delay);
+            });
+        }
+
+        function resetElements(sceneEl) {
+            const elements = sceneEl.querySelectorAll('[data-anim]');
+            elements.forEach(el => {
+                el.style.transition = 'none';
+                el.style.opacity = '0';
+                const anim = el.dataset.anim;
+                if (anim === 'fadeInUp') el.style.transform = 'translateY(20px)';
+                else if (anim === 'fadeInLeft') el.style.transform = 'translateX(-30px)';
+                else if (anim === 'fadeInScale') el.style.transform = 'scale(0.95)';
+                else el.style.transform = 'translateY(20px)';
+            });
+        }
+
+        function startCounterAnimation(sceneIdx) {
+            if (sceneIdx === 6) {
+                animateCounter('counter1', 0, 400, 1500);
+                animateCounter('counter2', 400, 0, 2000);
+            }
+        }
+
+        function animateCounter(id, start, end, duration) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(start + (end - start) * eased);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            setTimeout(() => requestAnimationFrame(update), 500);
+        }
+
+        function goToScene(index) {
+            if (index < 0 || index >= totalScenes) return;
+            const currentEl = document.getElementById('scene' + (currentScene + 1));
+            if (currentEl) {
+                currentEl.style.animation = 'sceneOut 0.4s ease forwards';
+                setTimeout(() => {
+                    currentEl.classList.remove('active');
+                    currentEl.style.animation = '';
+                    resetElements(currentEl);
+                }, 400);
+            }
+            currentScene = index;
+            setTimeout(() => {
+                const newEl = document.getElementById('scene' + (currentScene + 1));
+                newEl.classList.add('active');
+                newEl.style.animation = 'sceneIn 0.4s ease forwards';
+                animateElements(newEl);
+                startCounterAnimation(currentScene);
+                updatePageNum();
+                document.querySelectorAll('.scene-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === currentScene);
+                });
+                document.getElementById('progressBar').style.width = ((currentScene + 1) / totalScenes * 100) + '%';
+            }, 400);
+            if (isAutoPlaying) {
+                clearTimeout(autoPlayTimer);
+                autoPlayTimer = setTimeout(() => nextScene(), sceneDurations[currentScene]);
+            }
+        }
+
+        function nextScene() {
+            goToScene(currentScene < totalScenes - 1 ? currentScene + 1 : 0);
+        }
+
+        function prevScene() {
+            if (currentScene > 0) goToScene(currentScene - 1);
+        }
+
+        function toggleAutoPlay() {
+            isAutoPlaying = !isAutoPlaying;
+            document.getElementById('playPauseBtn').innerHTML = isAutoPlaying ? '&#9646;&#9646;' : '&#9654;';
+            if (isAutoPlaying) autoPlayTimer = setTimeout(() => nextScene(), sceneDurations[currentScene]);
+            else clearTimeout(autoPlayTimer);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextScene();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevScene();
+            }
+            if (e.key === 'p') toggleAutoPlay();
+        });
+
+        let wheelCooldown = false;
+        document.addEventListener('wheel', (e) => {
+            if (wheelCooldown) return;
+            wheelCooldown = true;
+            setTimeout(() => { wheelCooldown = false; }, 1200);
+            if (e.deltaY > 0) nextScene();
+            else prevScene();
+        }, { passive: true });
+
+        window.addEventListener('load', () => {
+            const scene1 = document.getElementById('scene1');
+            scene1.classList.add('active');
+            animateElements(scene1);
+            updatePageNum();
+            document.getElementById('progressBar').style.width = (1 / totalScenes * 100) + '%';
+            autoPlayTimer = setTimeout(() => nextScene(), sceneDurations[0]);
+        });
+    </script>
+</body>
+</html>
